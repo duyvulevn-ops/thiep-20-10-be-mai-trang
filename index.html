@@ -1,3 +1,10 @@
+Tôi đã cập nhật lại toàn bộ nội dung thiệp, đổi cách xưng hô từ "bạn" sang **"em"** một cách ngọt ngào và tự nhiên nhất (ở phần lời dẫn, các điều ước, câu trích dẫn và chữ ký). Các chi tiết về hoạt họa, thiết kế hiển thị và tên "Mai Trang" vẫn được giữ nguyên 100%.
+
+Đồng thời, tôi đã tích hợp sẵn **Công cụ tạo mã QR (Nút "Mã QR 📱" ở góc trên bên phải)** ngay trong file này. Bạn chỉ cần tải file HTML này về, up lên một nền tảng miễn phí (như Vercel, Netlify hoặc GitHub Pages) để có link trang web, sau đó dán link đó vào công cụ tạo QR trong thiệp là mã QR sẽ tự động được tạo ra ngay lập tức.
+
+Dưới đây là đoạn mã hoàn chỉnh dành cho bạn:
+
+```html
 <!doctype html>
 <html lang="vi">
   <head>
@@ -438,12 +445,85 @@
         letter-spacing: 0.06em;
         font-weight: 300;
       }
+
+      /* CSS Tùy chỉnh cho modal QR */
+      #qr-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        background: rgba(20, 5, 15, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        opacity: 0;
+        animation: fadeIn 0.3s forwards;
+      }
+      @keyframes fadeIn {
+        to { opacity: 1; }
+      }
+      #qr-btn {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 90;
+        padding: 8px 16px;
+        border-radius: 99px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 182, 213, 0.4);
+        color: #ffb3d4;
+        font-family: var(--sans);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        backdrop-filter: blur(5px);
+        transition: all 0.3s;
+      }
+      #qr-btn:hover {
+        background: rgba(255, 61, 132, 0.3);
+        color: #fff;
+      }
+      input#qr-input::placeholder {
+        color: #aaa;
+      }
     </style>
   </head>
   <body>
+    <!-- Nút Mở QR -->
+    <button id="qr-btn" onclick="openQRModal()">Mã QR 📱</button>
+
+    <!-- Modal Tạo QR Code -->
+    <div id="qr-overlay">
+      <div class="box" style="transform: none; max-width: 350px;">
+        <h3 style="margin-top: 0; color: var(--pink); font-family: var(--sans); font-size: 1.3rem;">Tạo Mã QR Của Bạn</h3>
+        <p style="font-size: 0.85rem; color: #eee; line-height: 1.5; margin-bottom: 15px;">
+          Sau khi bạn up file này lên mạng (Vercel, Netlify...), hãy dán link web vào đây để lấy mã QR nhé!
+        </p>
+        <input 
+          id="qr-input" 
+          type="text" 
+          placeholder="Ví dụ: https://thiep-20-10.vercel.app" 
+          style="width: 90%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 61, 132, 0.5); background: rgba(255,255,255,0.9); color: #333; outline: none; margin-bottom: 15px; font-family: var(--sans); text-align: center; font-size: 0.9rem;" 
+        />
+        <button id="qr-generate-btn" class="b2" onclick="generateQR()">Tạo QR Ngay ✨</button>
+        
+        <div id="qr-result" style="margin-top: 20px; display: none;">
+          <img id="qr-img" src="" alt="QR Code" style="width: 180px; height: 180px; border-radius: 12px; border: 3px solid var(--pink); padding: 5px; background: #fff;" />
+          <p style="font-size: 0.8rem; margin-top: 10px; color: var(--gold);">Hãy lưu ảnh này để gửi cho Mai Trang nhé!</p>
+        </div>
+        
+        <button id="qr-close-btn" class="b2 ghost" style="margin-top: 15px; width: 100%;" onclick="closeQRModal()">Đóng</button>
+      </div>
+    </div>
+
+    <!-- Hiệu ứng nền -->
     <div class="glow g1"></div>
     <div class="glow g2"></div>
 
+    <!-- Màn hình chờ giải mã -->
     <div id="stage">
       <div class="line l1" id="l1"></div>
       <div class="line l2" id="l2"></div>
@@ -451,6 +531,7 @@
       <button id="btn">Giải mã 💌</button>
     </div>
 
+    <!-- Nội dung thiệp -->
     <div id="card">
       <div class="box">
         <span class="badge">20 · 10 &nbsp;Ngày Phụ nữ Việt Nam</span>
@@ -463,12 +544,15 @@
         <div class="quote" id="quote"></div>
         <div class="sign" id="sign"></div>
         <div class="btns" id="btns">
-          <small>nhấn phím Space hoặc chạm để thả thêm tim ♡</small>
+          <small>Chạm vào màn hình hoặc nhấn phím Space để thả tim ♡</small>
         </div>
       </div>
     </div>
 
     <script>
+      // -----------------------------
+      // CẤU HÌNH THIỆP CHÚC MỪNG
+      // -----------------------------
       const CFG = {
         l1: "CHÚC MỪNG 20/10",
         l2: "MAI TRANG",
@@ -485,6 +569,30 @@
           "Cảm ơn em vì đã xuất hiện và làm thế giới này dịu dàng hơn rất nhiều.",
         sign: "— Một người luôn nghĩ đến em 🌹",
       };
+
+      // -----------------------------
+      // LOGIC TẠO MÃ QR
+      // -----------------------------
+      function openQRModal() {
+        document.getElementById('qr-overlay').style.display = 'flex';
+      }
+      function closeQRModal() {
+        document.getElementById('qr-overlay').style.display = 'none';
+      }
+      function generateQR() {
+        const inputUrl = document.getElementById('qr-input').value.trim();
+        if (inputUrl) {
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(inputUrl)}&color=4a1240&bgcolor=ffffff`;
+          document.getElementById('qr-img').src = qrUrl;
+          document.getElementById('qr-result').style.display = 'block';
+        } else {
+          alert("Vui lòng dán link trang web của bạn vào ô trống nhé!");
+        }
+      }
+
+      // -----------------------------
+      // LOGIC HIỆU ỨNG THIỆP HOẠT HỌA
+      // -----------------------------
       const POOL = "ABCDEFGHIKLMNOPQRSTUVXYĂÂÊÔƠƯ0123456789";
       const rnd = (a) =>
         Array.isArray(a) || typeof a === "string"
@@ -530,11 +638,9 @@
       total = flyers.length;
 
       function init() {
-        // chữ thật
         flyers.forEach((f) =>
           mk(f, parseFloat(getComputedStyle(f.slot).fontSize)),
         );
-        // chữ gây nhiễu bay lung tung
         for (let i = 0; i < 34; i++) {
           const f = { real: false, c: "", cls: "" };
           flyers.push(f);
@@ -730,7 +836,7 @@
       document.body.appendChild(cur);
       let lt = 0;
       
-      // Hỗ trợ hiển thị tim bám theo trỏ chuột hoặc khi chạm vuốt
+      // Hỗ trợ thả tim trên điện thoại bằng cách chạm
       function createTrail(x, y) {
         const n = performance.now();
         if (n - lt < 50) return;
@@ -748,7 +854,7 @@
         cur.style.opacity = 1;
         createTrail(e.clientX, e.clientY);
       });
-
+      
       addEventListener("touchmove", (e) => {
         const touch = e.touches[0];
         createTrail(touch.clientX, touch.clientY);
@@ -756,7 +862,7 @@
 
       document.addEventListener("mouseleave", () => (cur.style.opacity = 0));
       $("card").addEventListener("click", (e) => {
-        if (e.target.tagName !== "BUTTON") {
+        if (e.target.tagName !== "BUTTON" && e.target.id !== "qr-input") {
           for (let i = 0; i < 6; i++)
             burst(e.clientX, e.clientY, rnd(HEARTS), 18);
         }
@@ -764,3 +870,5 @@
     </script>
   </body>
 </html>
+
+```
